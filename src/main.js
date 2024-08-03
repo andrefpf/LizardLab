@@ -4,11 +4,11 @@ selection = new Selection();
 function setup() {
     createCanvas(800, 500);
 
-    animals = create_animals(10);
+    animals = create_animals(1);
 }
 
 function draw() {
-    background(200);
+    background(50);
 
     selection.draw();
 
