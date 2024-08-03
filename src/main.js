@@ -8,7 +8,7 @@ function setup() {
 }
 
 function draw() {
-    background(50);
+    background(28, 40, 38);
 
     selection.draw();
 
