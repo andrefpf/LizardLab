@@ -1,3 +1,6 @@
+var mouse_click = {x:-1, y:-1};
+selection = new Selection();
+
 function setup() {
     createCanvas(800, 500);
     
@@ -11,11 +14,22 @@ function setup() {
 function draw() {
     background(200);
 
-    for (animal of animals) {
+    selection.draw();
+
+    for (var animal of animals) {
         animal.draw();
     }
 
-    for (animal of animals) {
+    for (var animal of animals) {
         animal.update();
     }
+}
+
+function mouseDragged() {
+    var pt = {x:mouseX, y:mouseY};
+    selection.add_point(pt);
+}
+
+function mouseReleased() {
+    selection.clear();
 }
