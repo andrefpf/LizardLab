@@ -5,8 +5,8 @@ class Animal {
         this.color = {r:0, g:200, b:0};
         this.segments_distance = 0.7 * this.head_size;
         this.segment_sizes = [
-            1.5, 0.7, 1.3, 1.5, 1.7, 1.5, 1, // Body
-            0.7, 0.5, 0.5, 0.5, 0.5, 0.2,    // Tail
+            1.5, 0.7, 1.7, 1.9, 1.9, 1.7, 1.5, // Body
+            0.7, 0.7, 0.5, 0.5, 0.3, 0.1,    // Tail
         ];
 
         this.segments = [];
@@ -15,8 +15,7 @@ class Animal {
     }
 
     draw() {
-        // this._drawDebugSegments();
-
+        // Body
         push();
         fill(0, 255, 0);
         noStroke();
@@ -28,6 +27,33 @@ class Animal {
         endShape();
         pop();
 
+        circle(this.position);
+
+        var front_direction = (this.velocity.mag() == 0) ? createVector(1, 0) 
+        : this.velocity.copy().normalize(); 
+        var left_direction = createVector(front_direction.y, -front_direction.x);
+
+        // Left Eye
+        var pt = this.position.copy();
+        pt.add(left_direction.copy().mult(this.head_size * 0.4));
+        pt.sub(front_direction.copy().mult(this.head_size * 0.5));
+        fill(255);
+        circle(pt.x, pt.y, 20);
+        pt.add(front_direction.copy().mult(2))
+        fill(0);
+        circle(pt.x, pt.y, 10);
+
+        // Right Eye
+        var pt = this.position.copy();
+        pt.add(left_direction.copy().mult(-this.head_size * 0.4));
+        pt.sub(front_direction.copy().mult(this.head_size * 0.5));
+        fill(255);
+        circle(pt.x, pt.y, 20);
+        fill(0);
+        pt.add(front_direction.copy().mult(2))
+        circle(pt.x, pt.y, 10);
+
+        // this._drawDebugSegments();
         // this._drawDebugPoints();
     }
 
@@ -128,7 +154,6 @@ class Animal {
 
             last_segment = segment;
         }
-
         points.push(...left_body_points);
         points.push(...right_body_points.slice().reverse());
         return points;
