@@ -3,7 +3,7 @@ class Animal {
         this.position = position;
         this.head_size = head_size;
         this.velocity = createVector(0.5, 2);
-        this.color = {r:0, g:0, b:0};
+        this.color = {r:0, g:200, b:0};
     }
 
     draw() {

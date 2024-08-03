@@ -3,12 +3,8 @@ selection = new Selection();
 
 function setup() {
     createCanvas(800, 500);
-    
-    animals = create_animals(10);
 
-    for (animal of animals) {
-        animal.color = {r:0, g:200, b:0};
-    }
+    animals = create_animals(10);
 }
 
 function draw() {
