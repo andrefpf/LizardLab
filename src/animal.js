@@ -17,20 +17,50 @@ class Animal {
     draw() {
         push();
 
-        // noFill();
-        fill(255);
-        stroke(255);
-        strokeWeight(2);
-        circle(this.position.x, this.position.y, this.head_size);
+        var front_direction = (this.velocity.mag() == 0) ? createVector(1, 0) 
+                            : this.velocity.copy().normalize(); 
+        var left_direction = createVector(front_direction.y, -front_direction.x);
+
+        var pt;
         
-        // Segments
+        fill(0, 255, 0);
+        noStroke();
+        
+        beginShape();
+
+        // Nose point
+        pt = this.position.copy().add(front_direction.copy().mult(this.head_size / 2));
+        vertex(pt.x, pt.y);
+
+        // Left head point
+        pt = this.position.copy().add(left_direction.copy().mult(this.head_size / 2));
+        vertex(pt.x, pt.y);
+
+        // Left body points
         for (var i in this.segments) {
             var segment = this.segments[i];
             var size = this.segment_sizes[i] * this.head_size;
-            circle(segment.x, segment.y, size);
+            pt = segment.copy().add(left_direction.copy().mult(size / 2));
+            vertex(pt.x, pt.y);
         }
 
+        // Right body points
+        for (var i in this.segments) {
+            var j = this.segments.length - i - 1;
+            var segment = this.segments[j];
+            var size = this.segment_sizes[j] * this.head_size;
+            pt = segment.copy().sub(left_direction.copy().mult(size / 2));
+            vertex(pt.x, pt.y);
+        }        
+
+        // Right head point
+        pt = this.position.copy().sub(left_direction.copy().mult(this.head_size / 2));
+        vertex(pt.x, pt.y);
+
+        endShape();
         pop();
+
+        this._drawDebugSegments();
     }
 
     update() {
@@ -56,7 +86,6 @@ class Animal {
                 var amount = abs(this.segments_distance - distance) / this.segments_distance;
                 segment = segment.lerp(last_segment, amount);
             }
-
             // Uses this segment to update the next one
             last_segment = segment;
         }
@@ -67,6 +96,21 @@ class Animal {
             var segment = createVector(this.position.x - i * this.segments_distance, this.position.y);
             this.segments.push(segment);
         }
+    }
+
+    _drawDebugSegments() {
+        push();
+        noFill();
+        stroke(255);
+        strokeWeight(2);
+        circle(this.position.x, this.position.y, this.head_size);
+        // Segments
+        for (var i in this.segments) {
+            var segment = this.segments[i];
+            var size = this.segment_sizes[i] * this.head_size;
+            circle(segment.x, segment.y, size);
+        }
+        pop();
     }
 }
 
