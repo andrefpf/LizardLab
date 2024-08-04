@@ -4,7 +4,7 @@ selection = new Selection();
 function setup() {
     createCanvas(800, 500);
 
-    animals = create_animals(1);
+    animals = create_animals(1, size=50);
 }
 
 function draw() {

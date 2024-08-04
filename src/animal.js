@@ -3,20 +3,17 @@ class Animal {
         this.position = position;
         this.head_size = head_size;
         this.color = {r:0, g:200, b:0};
-        this.segments_distance = 0.7 * this.head_size;
+        this.segments_distance = floor(0.7 * this.head_size);
 
         this.segment_sizes = [
             0.7, 1.7, 2, 2, 1.7, 1.5, 
             0.7, 0.7, 0.5, 0.5, 0.3, 0.1
         ]
 
-        // this.segment_sizes = [
-        //     0.7, 1.7, 1.9, 1.9, 1.7, 1.5, // Body
-        //     0.7, 0.7, 0.5, 0.5, 0.3, 0.1,    // Tail
-        // ];
-
+        this.segment_sizes = [0.7, 1.2, 1.3, 1, 1.2, 1.4, 0.7, 0.7, 0.5, 0.5, 0.3, 0.1];
         this.segments = [];
         this.velocity = createVector(2, 0.5);
+        // this.velocity = createVector(0, 0);
         this._createSegments()
     }
 
@@ -30,12 +27,12 @@ class Animal {
         beginShape();
         var points = this._getBodyPoints();
         for (var pt of points) {
-            vertex(pt.x, pt.y);
+            vertex(ceil(pt.x), ceil(pt.y));
         }
         endShape();
         
         var pt;
-        var front_direction = (this.velocity.mag() == 0) 
+        var foward_direction = (this.velocity.mag() == 0) 
         ? createVector(1, 0) 
         : this.velocity.copy().normalize();
         
@@ -43,37 +40,38 @@ class Animal {
         fill(106, 160, 123);
         circle(this.position.x, this.position.y, this.head_size);
         pt = this.position.copy()
-        pt.add(front_direction.copy().mult(-this.head_size * 0.3))
+        pt.add(foward_direction.copy().mult(-this.head_size * 0.3))
         circle(pt.x, pt.y, this.head_size * 1.1);
 
         // Nose
         pt = this.position.copy()
-        pt.add(front_direction.copy().mult(this.head_size * 0.3))
+        pt.add(foward_direction.copy().mult(this.head_size * 0.3))
         circle(pt.x, pt.y, this.head_size * 0.7);
 
         // Left Eye
         var pt = this.position.copy();
-        pt.add(front_direction.copy()
+        pt.add(foward_direction.copy()
                               .rotate(-PI/2)
                               .mult(this.head_size * 0.4));
         fill(255);
         circle(pt.x, pt.y, this.head_size * 0.3);
-        pt.add(front_direction.copy().mult(2))
+        pt.add(foward_direction.copy().mult(2))
         fill(0);
         circle(pt.x, pt.y, this.head_size * 0.2);
         
         // Right Eye
         var pt = this.position.copy();
-        pt.add(front_direction.copy()
+        pt.add(foward_direction.copy()
                               .rotate(-PI/2)
                               .mult(-this.head_size * 0.4));
         fill(255);
         circle(pt.x, pt.y, this.head_size * 0.3);
         fill(0);
-        pt.add(front_direction.copy().mult(2))
+        pt.add(foward_direction.copy().mult(2))
         circle(pt.x, pt.y, this.head_size * 0.2);
-        
+
         // this._drawDebugSegments();
+        this._drawDebugLegs();
         // this._drawDebugPoints();
         pop();
     }
@@ -119,13 +117,51 @@ class Animal {
         noFill();
         stroke(255);
         strokeWeight(2);
+
         circle(this.position.x, this.position.y, this.head_size);
         // Segments
         for (var i in this.segments) {
             var segment = this.segments[i];
-            var size = this.segment_sizes[i] * this.head_size;
+            var size = floor(this.segment_sizes[i] * this.head_size);
             circle(segment.x, segment.y, size);
         }
+        pop();
+    }
+
+    _drawDebugLegs() {
+        push();
+        // noFill();
+        fill(255);
+        stroke(255);
+        strokeWeight(2);
+
+        var pt;
+        var front_left_leg;
+        var front_right_leg;
+        var back_left_leg;
+        var back_right_leg;
+
+        var foward_direction;
+        var left_direction;
+
+        // Front waist
+        [foward_direction, left_direction] = this._getSegmentVectors(2);
+        front_left_leg = this.segments[2].copy()
+        front_right_leg = this.segments[2].copy()
+        front_left_leg.add(left_direction.copy().mult(this.head_size * 1.2))
+        front_right_leg.sub(left_direction.copy().mult(this.head_size * 1.2))
+        circle(front_left_leg.x, front_left_leg.y, this.head_size / 2);
+        circle(front_right_leg.x, front_right_leg.y, this.head_size / 2);
+
+        // Back waist
+        [foward_direction, left_direction] = this._getSegmentVectors(5);
+        back_left_leg = this.segments[5].copy()
+        back_right_leg = this.segments[5].copy()
+        back_left_leg.add(left_direction.copy().mult(this.head_size * 1.2))
+        back_right_leg.sub(left_direction.copy().mult(this.head_size * 1.2))
+        circle(back_left_leg.x, back_left_leg.y, this.head_size / 2);
+        circle(back_right_leg.x, back_right_leg.y, this.head_size / 2);
+
         pop();
     }
     
@@ -139,10 +175,23 @@ class Animal {
         pop();
     }
 
+    _getSegmentVectors(segment_index) {
+        var last_segment = this.segments[segment_index - 1];
+        var segment = this.segments[segment_index];
+        if (segment_index == 0) {
+            last_segment = this.position
+        }
+
+        var foward_direction = last_segment.copy().sub(segment).normalize();
+        var left_direction = createVector(foward_direction.y, -foward_direction.x);
+
+        return [foward_direction, left_direction];
+    }
+
     _getBodyPoints() {
-        var front_direction = (this.velocity.mag() == 0) ? createVector(1, 0) 
+        var foward_direction = (this.velocity.mag() == 0) ? createVector(1, 0) 
                             : this.velocity.copy().normalize(); 
-        var left_direction = front_direction.copy().rotate(-PI/2);
+        var left_direction = foward_direction.copy().rotate(-PI/2);
 
         var pt;
         var points = [];
@@ -153,7 +202,7 @@ class Animal {
         var size = this.head_size;
 
         // Nose point
-        pt = segment.copy().add(front_direction.copy().mult(this.head_size / 2));
+        pt = segment.copy().add(foward_direction.copy().mult(this.head_size / 2));
         points.push(pt);
 
         // Left head point
@@ -167,10 +216,10 @@ class Animal {
         var last_segment = this.position;
         for (var i in this.segments) {
             segment = this.segments[i];
-            size = this.segment_sizes[i] * this.head_size;
+            size = floor(this.segment_sizes[i] * this.head_size);
 
-            front_direction = last_segment.copy().sub(segment).normalize();
-            left_direction = createVector(front_direction.y, -front_direction.x);
+            foward_direction = last_segment.copy().sub(segment).normalize();
+            left_direction = createVector(foward_direction.y, -foward_direction.x);
 
             pt = segment.copy().add(left_direction.copy().mult(size / 2));
             left_body_points.push(pt);
@@ -185,12 +234,13 @@ class Animal {
     }
 }
 
-function create_animals(n) {
+function create_animals(n, size=50) {
     var animals = [];
     for (var i=0; i<n; i++) {
         pos = createVector(Math.random() * width, 
                            Math.random() * height);
-        var animal = new Animal(pos, 50);
+        pos = createVector(600, 200);
+        var animal = new Animal(pos, size);
         animals.push(animal);
     }
     return animals;
