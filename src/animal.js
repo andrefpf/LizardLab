@@ -94,13 +94,14 @@ class Animal {
         var last_segment = this.position;
 
         for (var segment of this.segments) {
-            // Moves the segment closer to the next
-            // one if thay are too far away
+            // Moves the segment closer to the next one if they are too far away
             var distance = segment.dist(last_segment);
             if (distance > this.segments_distance) {
-                var amount = abs(this.segments_distance - distance) / this.segments_distance;
-                segment = segment.lerp(last_segment, amount);
+                var delta = last_segment.copy().sub(segment);
+                delta.setMag(this.segments_distance);
+                segment.set(last_segment.copy().sub(delta))
             }
+    
             // Uses this segment to update the next one
             last_segment = segment;
         }
