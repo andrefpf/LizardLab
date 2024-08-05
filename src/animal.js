@@ -2,78 +2,41 @@ class Animal {
     constructor(position, head_size) {
         this.position = position;
         this.head_size = head_size;
-        this.color = {r:0, g:200, b:0};
-        this.segments_distance = floor(0.7 * this.head_size);
-
-        this.segment_sizes = [
-            0.7, 1.7, 2, 2, 1.7, 1.5, 
-            0.7, 0.7, 0.5, 0.5, 0.3, 0.1
-        ]
-
-        this.segment_sizes = [0.7, 1.2, 1.3, 1, 1.2, 1.4, 0.7, 0.7, 0.5, 0.5, 0.3, 0.1];
-        this.segments = [];
+        this.color = [111, 213, 108];
+        this.segments_size = floor(0.6 * this.head_size);
         this.velocity = createVector(2, 0.5);
         // this.velocity = createVector(0, 0);
-        this._createSegments()
+
+        this.angle_step = 0;
+        this.joint_widths = [
+            1, 0.7, 1.2, 1.2, 1.2, 1.2, 1.1, 
+            0.7, 0.6, 0.5, 0.4, 0.3, 0.3, 0.2
+        ];
+        this.joints = [];
+        this.front_left_leg = createVector(0, 0);
+        this.front_right_leg = createVector(0, 0);
+        this.back_left_leg = createVector(0, 0);
+        this.back_right_leg = createVector(0, 0);
+
+        this._createControlPoints();
+        // this._updateLegPoints();
     }
 
     draw() {
-        // Body
         push();
-        fill(this.color.r, this.color.g, this.color.b);
+
         noStroke();
+        fill(...this.color);
         
-        fill(72, 112, 84);
-        beginShape();
-        var points = this._getBodyPoints();
-        for (var pt of points) {
-            vertex(ceil(pt.x), ceil(pt.y));
-        }
-        endShape();
-        
-        var pt;
-        var foward_direction = (this.velocity.mag() == 0) 
-        ? createVector(1, 0) 
-        : this.velocity.copy().normalize();
-        
-        // Head
-        fill(106, 160, 123);
-        circle(this.position.x, this.position.y, this.head_size);
-        pt = this.position.copy()
-        pt.add(foward_direction.copy().mult(-this.head_size * 0.3))
-        circle(pt.x, pt.y, this.head_size * 1.1);
-
-        // Nose
-        pt = this.position.copy()
-        pt.add(foward_direction.copy().mult(this.head_size * 0.3))
-        circle(pt.x, pt.y, this.head_size * 0.7);
-
-        // Left Eye
-        var pt = this.position.copy();
-        pt.add(foward_direction.copy()
-                              .rotate(-PI/2)
-                              .mult(this.head_size * 0.4));
-        fill(255);
-        circle(pt.x, pt.y, this.head_size * 0.3);
-        pt.add(foward_direction.copy().mult(2))
-        fill(0);
-        circle(pt.x, pt.y, this.head_size * 0.2);
-        
-        // Right Eye
-        var pt = this.position.copy();
-        pt.add(foward_direction.copy()
-                              .rotate(-PI/2)
-                              .mult(-this.head_size * 0.4));
-        fill(255);
-        circle(pt.x, pt.y, this.head_size * 0.3);
-        fill(0);
-        pt.add(foward_direction.copy().mult(2))
-        circle(pt.x, pt.y, this.head_size * 0.2);
-
-        // this._drawDebugSegments();
-        this._drawDebugLegs();
-        // this._drawDebugPoints();
+        this._drawLegs();
+        this._drawJoints();
+        this._drawSegments();
+        this._drawHead();
         pop();
+
+        // this._drawDebugJoints();
+        // this._drawDebugSegments();
+        // this._drawDebugLegs();
     }
 
     update() {
@@ -89,79 +52,167 @@ class Animal {
             this.velocity.y = -this.velocity.y
         }
         
+        var max_steps = 100;
+        this.angle_step++;
+
+        if (this.angle_step >= max_steps) {
+            this.angle_step = 0;
+        }
+
+        if (this.angle_step > (max_steps / 2)) {
+            this.velocity.rotate(PI/80);
+        }
+        else {
+            this.velocity.rotate(-PI/80);
+        }
+        
         var last_segment = this.position;
 
-        for (var segment of this.segments) {
+        for (var segment of this.joints) {
             // Moves the segment closer to the next one if they are too far away
             var distance = segment.dist(last_segment);
-            if (distance > this.segments_distance) {
+            if (distance > this.segments_size) {
                 var delta = last_segment.copy().sub(segment);
-                delta.setMag(this.segments_distance);
+                delta.setMag(this.segments_size);
                 segment.set(last_segment.copy().sub(delta))
             }
-    
             // Uses this segment to update the next one
             last_segment = segment;
         }
+
+        this._updateLegPoints()
     }
 
-    _createSegments() {
-        for (var i=1; i <= this.segment_sizes.length; i++) {
-            var segment = createVector(this.position.x - i * this.segments_distance, this.position.y);
-            this.segments.push(segment);
+    _createControlPoints() {
+        this.joints.push(this.position);
+        for (var i=1; i <= this.joint_widths.length; i++) {
+            var segment = createVector(this.position.x - i * this.segments_size, this.position.y);
+            this.joints.push(segment);
         }
+    }
+
+    _drawJoints() {
+        var joint;
+        var width;
+        for (var i in this.joints) {
+            joint = this.joints[i];
+            width = this.joint_widths[i];
+            circle(joint.x, joint.y, width * this.head_size);
+        }
+    }
+
+    _drawSegments() {
+        var last_joint = this.joints[0];
+        var last_width = this.joint_widths[0];
+
+        var current_joint;
+        var current_width;
+    
+        for (var i=0; i < this.joints.length - 1; i++) {
+            current_joint = this.joints[i];
+            current_width = this.joint_widths[i] * this.head_size;
+            var [_, normal] = this._getSegmentVectors(i);
+
+            var a = current_joint.copy().add(normal.copy().mult(current_width / 2));
+            var b = last_joint.copy().add(normal.copy().mult(last_width / 2));
+            var c = last_joint.copy().sub(normal.copy().mult(last_width / 2));
+            var d = current_joint.copy().sub(normal.copy().mult(current_width / 2));
+            quad(a.x, a.y, b.x, b.y, c.x, c.y, d.x, d.y);
+            
+            last_joint = current_joint;
+            last_width = current_width;
+        }
+    }
+
+    _drawHead() {
+        var [forward, normal] = this._getSegmentVectors(0);
+
+        var a = this.position.copy()
+        .add(normal.copy().mult(this.head_size * 0.6 / 2))
+        .add(forward.copy().mult(this.head_size * 0.5));
+        var b = this.position.copy()
+        .sub(normal.copy().mult(this.head_size * 0.6 / 2))
+        .add(forward.copy().mult(this.head_size * 0.5));
+        var c = this.position.copy().sub(normal.copy().mult(this.head_size / 2));
+        var d = this.position.copy().add(normal.copy().mult(this.head_size / 2));
+        quad(a.x, a.y, b.x, b.y, c.x, c.y, d.x, d.y);
+
+        var nose = this.position.copy().add(forward.copy().mult(this.head_size * 0.5));
+        circle(nose.x, nose.y, this.head_size * 0.6);
+
+        push();
+
+        var left_eye = this.position.copy()
+        .add(normal.copy().mult(this.head_size * 0.25))
+        .add(forward.copy().mult(this.head_size * 0.2));
+
+        var right_eye = this.position.copy()
+        .sub(normal.copy().mult(this.head_size * 0.25))
+        .add(forward.copy().mult(this.head_size * 0.2));
+
+        fill(0);
+        circle(left_eye.x, left_eye.y, this.head_size * 0.3)
+        circle(right_eye.x, right_eye.y, this.head_size * 0.3)
+
+        pop();
+    }
+    
+    _drawLegs() {
+        var front_leg_index = 2;
+        var back_leg_index = 5;
+        
+        push();
+        stroke(...this.color);
+        strokeWeight(this.head_size / 2);
+        line(this.joints[front_leg_index].x, this.joints[front_leg_index].y, this.front_left_leg.x, this.front_left_leg.y);
+        line(this.joints[front_leg_index].x, this.joints[front_leg_index].y, this.front_right_leg.x, this.front_right_leg.y);
+        line(this.joints[back_leg_index].x, this.joints[back_leg_index].y, this.back_left_leg.x, this.back_left_leg.y);
+        line(this.joints[back_leg_index].x, this.joints[back_leg_index].y, this.back_right_leg.x, this.back_right_leg.y);
+        pop();
+    }
+
+    _drawDebugJoints() {
+        push();
+        fill(255, 0, 0);
+        for (var joint of this.joints) {
+            circle(joint.x, joint.y, 10);
+        }
+        pop();
     }
     
     _drawDebugSegments() {
         push();
-        noFill();
-        stroke(255);
+        fill(255, 0, 0);
         strokeWeight(2);
-
-        circle(this.position.x, this.position.y, this.head_size);
-        // Segments
-        for (var i in this.segments) {
-            var segment = this.segments[i];
-            var size = floor(this.segment_sizes[i] * this.head_size);
-            circle(segment.x, segment.y, size);
+        stroke(255, 0, 0);
+        var last_joint = this.joints[0];
+        var current_joint;
+        for (var i=1; i < this.joints.length; i++) {
+            current_joint = this.joints[i];
+            line(last_joint.x, last_joint.y, current_joint.x, current_joint.y);
+            last_joint = current_joint;
         }
         pop();
     }
 
     _drawDebugLegs() {
         push();
-        // noFill();
-        fill(255);
-        stroke(255);
+        fill(255, 0, 0);
         strokeWeight(2);
+        stroke(255, 0, 0);
 
-        var pt;
-        var front_left_leg;
-        var front_right_leg;
-        var back_left_leg;
-        var back_right_leg;
+        circle(this.front_left_leg.x, this.front_left_leg.y, 10);
+        circle(this.front_right_leg.x, this.front_right_leg.y, 10);
+        circle(this.back_left_leg.x, this.back_left_leg.y, 10);
+        circle(this.back_right_leg.x, this.back_right_leg.y, 10);
 
-        var foward_direction;
-        var left_direction;
-
-        // Front waist
-        [foward_direction, left_direction] = this._getSegmentVectors(2);
-        front_left_leg = this.segments[2].copy()
-        front_right_leg = this.segments[2].copy()
-        front_left_leg.add(left_direction.copy().mult(this.head_size * 1.2))
-        front_right_leg.sub(left_direction.copy().mult(this.head_size * 1.2))
-        circle(front_left_leg.x, front_left_leg.y, this.head_size / 2);
-        circle(front_right_leg.x, front_right_leg.y, this.head_size / 2);
-
-        // Back waist
-        [foward_direction, left_direction] = this._getSegmentVectors(5);
-        back_left_leg = this.segments[5].copy()
-        back_right_leg = this.segments[5].copy()
-        back_left_leg.add(left_direction.copy().mult(this.head_size * 1.2))
-        back_right_leg.sub(left_direction.copy().mult(this.head_size * 1.2))
-        circle(back_left_leg.x, back_left_leg.y, this.head_size / 2);
-        circle(back_right_leg.x, back_right_leg.y, this.head_size / 2);
-
+        var front_leg_index = 2;
+        var back_leg_index = 5;
+        
+        line(this.joints[front_leg_index].x, this.joints[front_leg_index].y, this.front_left_leg.x, this.front_left_leg.y);
+        line(this.joints[front_leg_index].x, this.joints[front_leg_index].y, this.front_right_leg.x, this.front_right_leg.y);
+        line(this.joints[back_leg_index].x, this.joints[back_leg_index].y, this.back_left_leg.x, this.back_left_leg.y);
+        line(this.joints[back_leg_index].x, this.joints[back_leg_index].y, this.back_right_leg.x, this.back_right_leg.y);
         pop();
     }
     
@@ -174,63 +225,75 @@ class Animal {
         }
         pop();
     }
+        
+    _updateLegPoints() {
+        var forward;
+        var normal;
 
-    _getSegmentVectors(segment_index) {
-        var last_segment = this.segments[segment_index - 1];
-        var segment = this.segments[segment_index];
-        if (segment_index == 0) {
-            last_segment = this.position
+        var front_leg_index = 2;
+        var back_leg_index = 5;
+
+        var front_left_leg;
+        var front_right_leg;
+        var back_left_leg;
+        var back_right_leg;
+        
+        // Front waist
+        [forward, normal] = this._getSegmentVectors(front_leg_index);
+        front_left_leg = this.joints[front_leg_index].copy();
+        front_left_leg.add(normal.copy().mult(this.head_size));
+        front_left_leg.add(forward.copy().mult(this.head_size * 1.4));
+
+        front_right_leg = this.joints[front_leg_index].copy();
+        front_right_leg.sub(normal.copy().mult(this.head_size));
+        front_right_leg.add(forward.copy().mult(this.head_size * 1.4));
+
+        // Back waist
+        [forward, normal] = this._getSegmentVectors(back_leg_index);
+        back_left_leg = this.joints[back_leg_index].copy();
+        back_left_leg.add(normal.copy().mult(this.head_size));
+        back_left_leg.add(forward.copy().mult(this.head_size * 1.4));
+
+        back_right_leg = this.joints[back_leg_index].copy();
+        back_right_leg.sub(normal.copy().mult(this.head_size));
+        back_right_leg.add(forward.copy().mult(this.head_size * 1.4));
+
+        var max_distance = this.head_size * 1.5;
+        
+        if (this.front_left_leg.dist(front_left_leg) > max_distance) {
+            this.front_left_leg = front_left_leg;
         }
 
-        var foward_direction = last_segment.copy().sub(segment).normalize();
-        var left_direction = createVector(foward_direction.y, -foward_direction.x);
+        if (this.front_right_leg.dist(front_right_leg) > max_distance) {
+            this.front_right_leg = front_right_leg;
+        }
 
-        return [foward_direction, left_direction];
+        if (this.back_left_leg.dist(back_left_leg) > max_distance) {
+            this.back_left_leg = back_left_leg;
+        }
+        
+        if (this.back_right_leg.dist(back_right_leg) > max_distance) {
+            this.back_right_leg = back_right_leg;
+        }
     }
 
-    _getBodyPoints() {
-        var foward_direction = (this.velocity.mag() == 0) ? createVector(1, 0) 
-                            : this.velocity.copy().normalize(); 
-        var left_direction = foward_direction.copy().rotate(-PI/2);
+    _getSegmentVectors(segment_index) {
+        var last_segment = this.joints[segment_index - 1];
+        var segment = this.joints[segment_index];
 
-        var pt;
-        var points = [];
-        var left_body_points = [];
-        var right_body_points = [];
-
-        var segment = this.position;
-        var size = this.head_size;
-
-        // Nose point
-        pt = segment.copy().add(foward_direction.copy().mult(this.head_size / 2));
-        points.push(pt);
-
-        // Left head point
-        pt = segment.copy().add(left_direction.copy().mult(this.head_size / 2));
-        left_body_points.push(pt);
-
-        // Right head point
-        pt = this.position.copy().sub(left_direction.copy().mult(this.head_size / 2));
-        right_body_points.push(pt);
-
-        var last_segment = this.position;
-        for (var i in this.segments) {
-            segment = this.segments[i];
-            size = floor(this.segment_sizes[i] * this.head_size);
-
-            foward_direction = last_segment.copy().sub(segment).normalize();
-            left_direction = createVector(foward_direction.y, -foward_direction.x);
-
-            pt = segment.copy().add(left_direction.copy().mult(size / 2));
-            left_body_points.push(pt);
-            pt = segment.copy().sub(left_direction.copy().mult(size / 2));
-            right_body_points.push(pt);
-
-            last_segment = segment;
+        if (segment_index == 0) {
+            last_segment = this.joints[segment_index + 1];
         }
-        points.push(...left_body_points);
-        points.push(...right_body_points.slice().reverse());
-        return points;
+
+        var forward_direction = last_segment.copy().sub(segment).normalize();
+        var left_direction = createVector(forward_direction.y, -forward_direction.x);
+
+        if (segment_index == 0) {
+            forward_direction.mult(-1);
+            left_direction.mult(-1);
+        }
+
+        return [forward_direction, left_direction];
     }
 }
 
@@ -239,7 +302,7 @@ function create_animals(n, size=50) {
     for (var i=0; i<n; i++) {
         pos = createVector(Math.random() * width, 
                            Math.random() * height);
-        pos = createVector(600, 200);
+        // pos = createVector(600, 200);
         var animal = new Animal(pos, size);
         animals.push(animal);
     }

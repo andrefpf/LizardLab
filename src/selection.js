@@ -14,7 +14,7 @@ class Selection {
     draw() {
         push();
         beginShape();
-        fill(255, 0, 0);
+        fill(255, 67, 101);
         noStroke();
         for (var pt of this.points) {
             curveVertex(pt.x, pt.y);
