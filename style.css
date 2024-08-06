@@ -1,8 +1,27 @@
 html, body {
     margin: 0;
     padding: 0;
-  }
-  canvas {
+    background-color: #3B5450;
+}
+
+canvas {
     display: block;
-  }
-  
+    margin: auto;
+}
+
+#menu-div {
+    display: flex;
+    margin: auto;
+    text-align: center;
+    border-style: solid;
+}
+
+#points {
+    /* float: left; */
+
+    font-family: Arial, sans-serif;
+    font-size: 70pt;
+    font-weight: bold;
+    color: white;
+    text-align: center;
+}

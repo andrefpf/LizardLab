@@ -1,9 +1,13 @@
 var animals;
 var mouse_click = {x:-1, y:-1};
-selection = new Selection();
+var points = 0;
+var points_label;
+var selection = new Selection();
 
 function setup() {
-    createCanvas(800, 500);
+    let canvas = createCanvas(800, 500);
+    canvas.parent("canvas-div")
+    points_label = document.getElementById("points");
 
     animals = create_animals(10, size=15);
 }
@@ -20,6 +24,8 @@ function draw() {
     for (var animal of animals) {
         animal.draw();
     }
+
+    points_label.innerHTML = points + " pts";
 }
 
 function mouseDragged() {
@@ -36,6 +42,7 @@ function mouseReleased() {
         if (picked) {
             animal.color = [252, 158, 79];
             picked_animals.push(animal);
+            points++;
         }
 
         if (picked_animals.length >= 2) {
@@ -44,4 +51,8 @@ function mouseReleased() {
     }
 
     selection.clear();
+}
+
+function restartGame() {
+    points = -1;
 }
