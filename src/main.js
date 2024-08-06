@@ -1,6 +1,6 @@
 var animals;
 var mouse_click = {x:-1, y:-1};
-var points = 0;
+var game_points = 0;
 var points_label;
 var selection = new Selection();
 
@@ -24,8 +24,6 @@ function draw() {
     for (var animal of animals) {
         animal.draw();
     }
-
-    points_label.innerHTML = points + " pts";
 }
 
 function mouseDragged() {
@@ -42,7 +40,8 @@ function mouseReleased() {
         if (picked) {
             animal.color = [252, 158, 79];
             picked_animals.push(animal);
-            points++;
+
+            addPoints(10);
         }
 
         if (picked_animals.length >= 2) {
@@ -55,4 +54,9 @@ function mouseReleased() {
 
 function restartGame() {
     points = -1;
+}
+
+function addPoints(delta) {
+    game_points += delta;
+    points_label.innerHTML = game_points + " pts";
 }
