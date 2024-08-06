@@ -3,6 +3,8 @@ class Animal {
         this.position = position;
         this.head_size = head_size;
         this.color = [111, 213, 108];
+        // this.color = [60, 145, 230];
+        // this.color = [252, 158, 79];
         this.segments_size = floor(0.6 * this.head_size);
         this.velocity = createVector(2, 0.5);
         // this.velocity = createVector(0, 0);
