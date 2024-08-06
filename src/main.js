@@ -1,3 +1,4 @@
+var animals;
 var mouse_click = {x:-1, y:-1};
 selection = new Selection();
 
@@ -22,10 +23,25 @@ function draw() {
 }
 
 function mouseDragged() {
-    var pt = {x:mouseX, y:mouseY};
+    var pt = createVector(mouseX, mouseY);
     selection.add_point(pt);
 }
 
 function mouseReleased() {
+    var picked_animals = [];
+
+    for (var animal of animals) {
+        var picked = pointInPoly(animal.position, selection.points);
+
+        if (picked) {
+            animal.color = [252, 158, 79];
+            picked_animals.push(animal);
+        }
+
+        if (picked_animals.length >= 2) {
+            break
+        }
+    }
+
     selection.clear();
 }

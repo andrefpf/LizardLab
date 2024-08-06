@@ -6,8 +6,9 @@ class Animal {
         // this.color = [60, 145, 230];
         // this.color = [252, 158, 79];
         this.segments_size = floor(0.6 * this.head_size);
-        this.velocity = createVector(2, 0.5);
-        // this.velocity = createVector(0, 0);
+        this.direction = createVector(2 * Math.random() - 1, 2 * Math.random() - 1);
+        this.direction.normalize();
+        this.velocity = 3;
 
         this.angle_step = 0;
         this.joint_widths = [
@@ -42,16 +43,16 @@ class Animal {
     }
 
     update() {
-        this.position.add(this.velocity);
+        this.position.add(this.direction.copy().mult(this.velocity));
         this.position.x = clamp(this.position.x, 0, width);
         this.position.y = clamp(this.position.y, 0, height);
 
         if (this.position.x <= 0 || this.position.x >= width) {
-            this.velocity.x = -this.velocity.x
+            this.direction.x = -this.direction.x
         }
 
         if (this.position.y <= 0 || this.position.y >= height) {
-            this.velocity.y = -this.velocity.y
+            this.direction.y = -this.direction.y
         }
         
         var max_steps = 100;
@@ -62,10 +63,10 @@ class Animal {
         }
 
         if (this.angle_step > (max_steps / 2)) {
-            this.velocity.rotate(PI/80);
+            this.direction.rotate(PI/80);
         }
         else {
-            this.velocity.rotate(-PI/80);
+            this.direction.rotate(-PI/80);
         }
         
         var last_segment = this.position;
@@ -88,7 +89,10 @@ class Animal {
     _createControlPoints() {
         this.joints.push(this.position);
         for (var i=1; i <= this.joint_widths.length; i++) {
-            var segment = createVector(this.position.x - i * this.segments_size, this.position.y);
+            var segment = createVector(this.position.x, this.position.y);
+            segment.sub(this.direction.copy().mult(i * this.segments_size));
+
+            // var segment = createVector(this.position.x - i * this.segments_size, this.position.y);
             this.joints.push(segment);
         }
     }
