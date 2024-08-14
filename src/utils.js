@@ -10,3 +10,11 @@ function pointInPoly(pt, verts) {
     }
     return c;
 }
+
+function average(array) {
+    sum = 0;
+    for (let val of array) {
+        sum += val;
+    }
+    return sum / array.length
+}

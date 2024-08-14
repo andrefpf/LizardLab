@@ -9,7 +9,7 @@ function setup() {
     canvas.parent("canvas-div")
     points_label = document.getElementById("points");
 
-    animals = create_animals(10, size=15);
+    animals = createAnimals(7, size=15);
 }
 
 function draw() {
@@ -36,17 +36,28 @@ function mouseReleased() {
 
     for (var animal of animals) {
         var picked = pointInPoly(animal.position, selection.points);
-
         if (picked) {
-            animal.color = [252, 158, 79];
+            animal.makeAngry();
             picked_animals.push(animal);
-
-            addPoints(10);
         }
+    }
+    
+    if (picked_animals.length == 1) {
+        animal = picked_animals[0];
+        addPoints(10);
 
-        if (picked_animals.length >= 2) {
-            break
-        }
+        // Place new animal outside of the screen and make
+        // it enter the canvas
+        animal.reset();
+        animal.position = createVector(-20, height / 2);
+        animal.direction  = createVector(1, 0);
+        animal.joints = [];
+        animal._createControlPoints();
+
+        let all_genetics = animals.filter(item => item != animal)
+                                  .map(item => item.genetics);
+        animal.genetics = Genetics.merge(all_genetics);
+        console.log(animal.genetics)
     }
 
     selection.clear();

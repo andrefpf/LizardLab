@@ -1,35 +1,52 @@
 class Animal {
-    constructor(position, head_size) {
+    constructor(position) {
+        this.genetics = new Genetics();
+
         this.position = position;
-        this.head_size = head_size;
-        this.color = [111, 213, 108];
+        this.head_size = this.genetics.getSize();
+        this.eye_color = [0, 0, 255]
+        // this.color = [111, 213, 108];
         // this.color = [60, 145, 230];
         // this.color = [252, 158, 79];
         this.segments_size = floor(0.6 * this.head_size);
         this.direction = createVector(2 * Math.random() - 1, 2 * Math.random() - 1);
         this.direction.normalize();
-        this.velocity = 3;
 
         this.angle_step = 0;
-        this.joint_widths = [
-            1, 0.7, 1.2, 1.2, 1.2, 1.2, 1.1, 
-            0.7, 0.6, 0.5, 0.4, 0.3, 0.3, 0.2
-        ];
-        this.joints = [];
         this.front_left_leg = createVector(0, 0);
         this.front_right_leg = createVector(0, 0);
         this.back_left_leg = createVector(0, 0);
         this.back_right_leg = createVector(0, 0);
 
+        this.reset();
         this._createControlPoints();
         // this._updateLegPoints();
+    }
+
+    reset() {
+        this.angry = false;
+        this.color = [111, 213, 108];
+        this.eye_color = [0, 0, 255]
+        this.speed = this.genetics.getSpeed();
+        this.joint_widths = [
+            1, 0.7, 1.2, 1.2, 1.2, 1.2, 1.1, 
+            0.7, 0.6, 0.5, 0.4, 0.3, 0.3, 0.2
+        ];
+    }
+
+    makeAngry() {
+        this.angry = true;
+        this.eye_color = [255, 67, 101];
+        this.speed = 8;
+        this.joint_widths = this.joint_widths.slice(0, 8);
+        this.joints = this.joints.slice(0, 8);
     }
 
     draw() {
         push();
 
         noStroke();
-        fill(...this.color);
+        fill(...this.genetics.getColor());
         
         this._drawLegs();
         this._drawJoints();
@@ -43,7 +60,7 @@ class Animal {
     }
 
     update() {
-        this.position.add(this.direction.copy().mult(this.velocity));
+        this.position.add(this.direction.copy().mult(this.speed));
         this.position.x = clamp(this.position.x, 0, width);
         this.position.y = clamp(this.position.y, 0, height);
 
@@ -63,10 +80,12 @@ class Animal {
         }
 
         if (this.angle_step > (max_steps / 2)) {
-            this.direction.rotate(PI/80);
+            this.direction.rotate(Math.random() * PI / 30);
+            // this.direction.rotate(PI/80);
         }
         else {
-            this.direction.rotate(-PI/80);
+            this.direction.rotate(-Math.random() * PI / 30);
+            // this.direction.rotate(-PI/80);
         }
         
         var last_segment = this.position;
@@ -87,6 +106,7 @@ class Animal {
     }
 
     _createControlPoints() {
+        this.joints = [];
         this.joints.push(this.position);
         for (var i=1; i <= this.joint_widths.length; i++) {
             var segment = createVector(this.position.x, this.position.y);
@@ -133,6 +153,7 @@ class Animal {
     _drawHead() {
         var [forward, normal] = this._getSegmentVectors(0);
 
+        // Head
         var a = this.position.copy()
         .add(normal.copy().mult(this.head_size * 0.6 / 2))
         .add(forward.copy().mult(this.head_size * 0.5));
@@ -143,20 +164,21 @@ class Animal {
         var d = this.position.copy().add(normal.copy().mult(this.head_size / 2));
         quad(a.x, a.y, b.x, b.y, c.x, c.y, d.x, d.y);
 
+        // Nose
         var nose = this.position.copy().add(forward.copy().mult(this.head_size * 0.5));
         circle(nose.x, nose.y, this.head_size * 0.6);
 
-        push();
-
+        // Eyes
         var left_eye = this.position.copy()
         .add(normal.copy().mult(this.head_size * 0.25))
         .add(forward.copy().mult(this.head_size * 0.2));
-
+        
         var right_eye = this.position.copy()
         .sub(normal.copy().mult(this.head_size * 0.25))
         .add(forward.copy().mult(this.head_size * 0.2));
-
-        fill(0);
+        
+        push();
+        fill(...this.eye_color);
         circle(left_eye.x, left_eye.y, this.head_size * 0.3)
         circle(right_eye.x, right_eye.y, this.head_size * 0.3)
 
@@ -168,7 +190,7 @@ class Animal {
         var back_leg_index = 5;
         
         push();
-        stroke(...this.color);
+        stroke(...this.genetics.getColor());
         strokeWeight(this.head_size / 2);
         line(this.joints[front_leg_index].x, this.joints[front_leg_index].y, this.front_left_leg.x, this.front_left_leg.y);
         line(this.joints[front_leg_index].x, this.joints[front_leg_index].y, this.front_right_leg.x, this.front_right_leg.y);
@@ -303,14 +325,16 @@ class Animal {
     }
 }
 
-function create_animals(n, size=50) {
+function createAnimals(n, size=50) {
     var animals = [];
     for (var i=0; i<n; i++) {
         pos = createVector(Math.random() * width, 
                            Math.random() * height);
         // pos = createVector(600, 200);
         var animal = new Animal(pos, size);
+        animal.genetics.p_size = 1;
         animals.push(animal);
     }
+    animals[0].genetics.p_size = 0;
     return animals;
 }
