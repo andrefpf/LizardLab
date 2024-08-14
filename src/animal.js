@@ -3,20 +3,17 @@ class Animal {
         this.genetics = new Genetics();
 
         this.position = position;
-        this.head_size = this.genetics.getSize();
-        this.eye_color = [0, 0, 255]
-        // this.color = [111, 213, 108];
-        // this.color = [60, 145, 230];
-        // this.color = [252, 158, 79];
-        this.segments_size = floor(0.6 * this.head_size);
         this.direction = createVector(2 * Math.random() - 1, 2 * Math.random() - 1);
         this.direction.normalize();
-
+        
         this.angle_step = 0;
         this.front_left_leg = createVector(0, 0);
         this.front_right_leg = createVector(0, 0);
         this.back_left_leg = createVector(0, 0);
         this.back_right_leg = createVector(0, 0);
+
+        this.head_size = this.genetics.getSize();
+        this.segments_size = floor(0.6 * this.head_size);
 
         this.reset();
         this._createControlPoints();
@@ -24,10 +21,7 @@ class Animal {
     }
 
     reset() {
-        this.angry = false;
-        this.color = [111, 213, 108];
-        this.eye_color = [0, 0, 255]
-        this.speed = this.genetics.getSpeed();
+        this.angry = 0;
         this.joint_widths = [
             1, 0.7, 1.2, 1.2, 1.2, 1.2, 1.1, 
             0.7, 0.6, 0.5, 0.4, 0.3, 0.3, 0.2
@@ -35,11 +29,7 @@ class Animal {
     }
 
     makeAngry() {
-        this.angry = true;
-        this.eye_color = [255, 67, 101];
-        this.speed = 8;
-        this.joint_widths = this.joint_widths.slice(0, 8);
-        this.joints = this.joints.slice(0, 8);
+        this.angry = 300;
     }
 
     draw() {
@@ -60,7 +50,11 @@ class Animal {
     }
 
     update() {
-        this.position.add(this.direction.copy().mult(this.speed));
+        let speed = this.genetics.getSpeed();
+        if (this.angry)
+            speed = 8;
+
+        this.position.add(this.direction.copy().mult(speed));
         this.position.x = clamp(this.position.x, 0, width);
         this.position.y = clamp(this.position.y, 0, height);
 
@@ -102,6 +96,10 @@ class Animal {
             last_segment = segment;
         }
 
+        if (this.angry > 0) {
+            this.angry--;
+        }
+
         this._updateLegPoints()
     }
 
@@ -123,6 +121,9 @@ class Animal {
         for (var i in this.joints) {
             joint = this.joints[i];
             width = this.joint_widths[i];
+            if (this.angry && i >= 8) {
+                break
+            }
             circle(joint.x, joint.y, width * this.head_size);
         }
     }
@@ -144,6 +145,10 @@ class Animal {
             var c = last_joint.copy().sub(normal.copy().mult(last_width / 2));
             var d = current_joint.copy().sub(normal.copy().mult(current_width / 2));
             quad(a.x, a.y, b.x, b.y, c.x, c.y, d.x, d.y);
+
+            if (this.angry && i >= 8) {
+                break
+            }
             
             last_joint = current_joint;
             last_width = current_width;
@@ -172,15 +177,21 @@ class Animal {
         var left_eye = this.position.copy()
         .add(normal.copy().mult(this.head_size * 0.25))
         .add(forward.copy().mult(this.head_size * 0.2));
-        
+
         var right_eye = this.position.copy()
         .sub(normal.copy().mult(this.head_size * 0.25))
         .add(forward.copy().mult(this.head_size * 0.2));
         
         push();
-        fill(...this.eye_color);
-        circle(left_eye.x, left_eye.y, this.head_size * 0.3)
-        circle(right_eye.x, right_eye.y, this.head_size * 0.3)
+        if (this.angry) {
+            fill(255, 67, 101);
+        }
+        else {
+            fill(255, 255, 255);
+        }
+
+        circle(left_eye.x, left_eye.y, this.head_size * 0.4)
+        circle(right_eye.x, right_eye.y, this.head_size * 0.4)
 
         pop();
     }
@@ -325,16 +336,13 @@ class Animal {
     }
 }
 
-function createAnimals(n, size=50) {
+function createAnimals(n) {
     var animals = [];
     for (var i=0; i<n; i++) {
         pos = createVector(Math.random() * width, 
                            Math.random() * height);
-        // pos = createVector(600, 200);
-        var animal = new Animal(pos, size);
-        animal.genetics.p_size = 1;
+        var animal = new Animal(pos);
         animals.push(animal);
     }
-    animals[0].genetics.p_size = 0;
     return animals;
 }

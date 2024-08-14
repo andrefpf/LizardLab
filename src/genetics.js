@@ -1,8 +1,8 @@
 color_a = [15, 61, 49];
-color_b = [34, 145, 88];
+color_b = [219, 145, 68];
 size_a = 15;
 size_b = 20;
-speed_a = 2;
+speed_a = 3;
 speed_b = 5;
 
 
@@ -36,17 +36,17 @@ by a number ranging from 0 to 1.
 
     mutate() {
         if (Math.random() > 0.2) {
-            this.p_color += Math.random() - 0.5;
+            this.p_color += (Math.random() - 0.5) * 0.7;
             this.p_color = clamp(this.p_color, 0, 1);
         }
 
         if (Math.random() > 0.2) {
-            this.p_size += Math.random() - 0.5;
+            this.p_size += (Math.random() - 0.5) * 0.7;
             this.p_size = clamp(this.p_size, 0, 1);
         }
 
         if (Math.random() > 0.2) {
-            this.p_speed += Math.random() - 0.5;
+            this.p_speed += (Math.random() - 0.5) * 0.7;
             this.p_speed = clamp(this.p_speed, 0, 1);
         }
     }

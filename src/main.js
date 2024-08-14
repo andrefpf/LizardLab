@@ -1,27 +1,60 @@
 var animals;
-var mouse_click = {x:-1, y:-1};
-var game_points = 0;
 var points_label;
+
 var selection = new Selection();
+var game = new Game();
 
 function setup() {
     let canvas = createCanvas(800, 500);
     canvas.parent("canvas-div")
     points_label = document.getElementById("points");
-
-    animals = createAnimals(7, size=15);
 }
 
 function draw() {
     background(28, 40, 38);
 
+    game.update();
+
+    if (game.state == Game.FIRST_INIT)
+        return drawGameFirstInit();
+
+    if (game.state == Game.GAME_RUNNING)
+        return drawGameRunning();
+
+    if (game.state == Game.GAME_FINISHED)
+        return drawGameFinished();
+}
+
+function drawGameFirstInit() {
+    push();
+    fill(255);
+    textStyle(BOLD);
+    textAlign(CENTER);
+    textSize(width / 10);
+
+    text("Finished", width / 2, height / 4);
+    pop();
+}
+
+function drawGameFinished() {
+    push();
+    fill(255);
+    textStyle(BOLD);
+    textAlign(CENTER);
+    textSize(width / 10);
+
+    text("Finished", width / 2, height / 4);
+    pop();
+}
+
+function drawGameRunning() {
     selection.draw();
 
-    for (var animal of animals) {
+    for (var animal of game.animals) {
         animal.update();
     }
 
-    for (var animal of animals) {
+    for (var animal of game.animals) {
         animal.draw();
     }
 }
@@ -32,9 +65,20 @@ function mouseDragged() {
 }
 
 function mouseReleased() {
+    if (game.state == Game.FIRST_INIT) {
+        selection.clear();
+        return game.startRound();
+    }
+
+    if (game.state == Game.GAME_FINISHED) {
+        selection.clear();
+        return game.startRound();
+    }
+
+
     var picked_animals = [];
 
-    for (var animal of animals) {
+    for (var animal of game.animals) {
         var picked = pointInPoly(animal.position, selection.points);
         if (picked) {
             animal.makeAngry();
@@ -54,20 +98,18 @@ function mouseReleased() {
         animal.joints = [];
         animal._createControlPoints();
 
-        let all_genetics = animals.filter(item => item != animal)
-                                  .map(item => item.genetics);
-        animal.genetics = Genetics.merge(all_genetics);
-        console.log(animal.genetics)
+        animal.genetics = new Genetics();
+
+        // let all_genetics = animals.filter(item => item != animal)
+        //                           .map(item => item.genetics);
+        // animal.genetics = Genetics.merge(all_genetics);
+        // animal.genetics.mutate();
     }
 
     selection.clear();
 }
 
-function restartGame() {
-    points = -1;
-}
-
 function addPoints(delta) {
-    game_points += delta;
-    points_label.innerHTML = game_points + " pts";
+    game.points += delta;
+    points_label.innerHTML = game.points + " pts";
 }
