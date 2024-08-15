@@ -15,7 +15,7 @@ class Clock {
     }
 
     draw() {
-        if (this.finished)
+        if (this.finished())
             return
 
         let angle = -PI/2 - 2 * PI * this.seconds / this.total_seconds;
@@ -23,9 +23,6 @@ class Clock {
     }
 
     update() {
-        if (this.seconds <= 0)
-            return this.stopRound();
-
         this.seconds = this.total_seconds - (Date.now() - this.start_time) / 1000;
     }
 }

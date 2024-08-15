@@ -1,9 +1,9 @@
 class Animal {
-    constructor(position) {
+    constructor(position, direction) {
         this.genetics = new Genetics();
 
         this.position = position;
-        this.direction = createVector(2 * Math.random() - 1, 2 * Math.random() - 1);
+        this.direction = direction;
         this.direction.normalize();
         
         this.angle_step = 0;
@@ -15,9 +15,11 @@ class Animal {
         this.head_size = this.genetics.getSize();
         this.segments_size = floor(0.6 * this.head_size);
 
+        this.freeze = false;
+
         this.reset();
         this._createControlPoints();
-        // this._updateLegPoints();
+        this._updateLegPoints();
     }
 
     reset() {
@@ -50,6 +52,9 @@ class Animal {
     }
 
     update() {
+        if (this.freeze)
+            return
+
         let speed = this.genetics.getSpeed();
         if (this.angry)
             speed = 8;
@@ -339,9 +344,10 @@ class Animal {
 function createAnimals(n) {
     var animals = [];
     for (var i=0; i<n; i++) {
-        pos = createVector(Math.random() * width, 
+        let pos = createVector(Math.random() * width, 
                            Math.random() * height);
-        var animal = new Animal(pos);
+        let dir = createVector(2 * Math.random() - 1, 2 * Math.random() - 1);
+        var animal = new Animal(pos, dir);
         animals.push(animal);
     }
     return animals;

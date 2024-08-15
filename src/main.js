@@ -4,61 +4,30 @@ var points_label;
 var selection = new Selection();
 var game = new Game();
 
+var current_screen = new GameRunningScreen();
+
+
+var animal_a; 
+var animal_b; 
+
 function setup() {
     let canvas = createCanvas(800, 500);
     canvas.parent("canvas-div")
     points_label = document.getElementById("points");
+
+    animal_a = new Animal(createVector(width * 0.3, height/2), createVector(0, -1));
+    animal_a.freeze = true
+    
+    animal_b = new Animal(createVector(width * 0.7, height/2), createVector(0, -1));
+    animal_b.freeze = true
 }
 
 function draw() {
-    background(28, 40, 38);
+    let screen = game.getCurrentScreen();
 
     game.update();
-
-    if (game.state == Game.FIRST_INIT)
-        return drawGameFirstInit();
-
-    if (game.state == Game.GAME_RUNNING)
-        return drawGameRunning();
-
-    if (game.state == Game.GAME_FINISHED)
-        return drawGameFinished();
-}
-
-function drawGameFirstInit() {
-    push();
-    fill(255);
-    textStyle(BOLD);
-    textAlign(CENTER);
-    textSize(width / 10);
-
-    text("Finished", width / 2, height / 4);
-    pop();
-}
-
-function drawGameFinished() {
-    push();
-    fill(255);
-    textStyle(BOLD);
-    textAlign(CENTER);
-    textSize(width / 10);
-
-    text("Finished", width / 2, height / 4);
-    pop();
-}
-
-function drawGameRunning() {
-    selection.draw();
-
-    for (var animal of game.animals) {
-        animal.update();
-    }
-
-    for (var animal of game.animals) {
-        animal.draw();
-    }
-
-    this.game.clock.draw();
+    screen.update();
+    screen.draw();
 }
 
 function mouseDragged() {

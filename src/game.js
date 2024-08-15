@@ -6,7 +6,13 @@ class Game {
     constructor() {
         this.number_of_animals = 10;
         this.clock = new Clock(30);
-        this.state = Game.FIRST_INIT;
+        this.state = Game.GAME_FINISHED;
+        this.animals = [];
+        this.screens = {}
+
+        this.screens[Game.FIRST_INIT] = new StartGameScreen();
+        this.screens[Game.GAME_RUNNING] = new GameRunningScreen();
+        this.screens[Game.GAME_FINISHED] = new EndGameScreen();
     }
 
     startRound() {
@@ -31,5 +37,9 @@ class Game {
             return this.stopRound();
 
         this.clock.update();
+    }
+
+    getCurrentScreen() {
+        return this.screens[this.state];
     }
 }
