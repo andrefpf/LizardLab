@@ -57,6 +57,8 @@ function drawGameRunning() {
     for (var animal of game.animals) {
         animal.draw();
     }
+
+    this.game.clock.draw();
 }
 
 function mouseDragged() {
