@@ -4,7 +4,7 @@ class Game {
     static GAME_FINISHED = 2;
 
     constructor() {
-        this.number_of_animals = 10;
+        this.number_of_animals = 8;
         this.clock = new Clock(30);
         this.state = Game.FIRST_INIT;
         this.animals = [];

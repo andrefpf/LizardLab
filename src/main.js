@@ -47,7 +47,15 @@ function mouseReleased() {
     var picked_animals = [];
 
     for (var animal of game.animals) {
-        var picked = pointInPoly(animal.position, selection.points);
+        var picked = true;
+        for (var joint of animal.joints) {
+            if (!pointInPoly(joint, selection.points)) {
+                picked = false;
+            }
+        }
+
+        // var picked = pointInPoly(animal.position, selection.points);
+
         if (picked) {
             animal.makeAngry();
             picked_animals.push(animal);
@@ -60,13 +68,10 @@ function mouseReleased() {
 
         // Place new animal outside of the screen and make
         // it enter the canvas
-        animal.reset();
+        animal.genetics = new Genetics();
         animal.position = createVector(-20, height / 2);
         animal.direction  = createVector(1, 0);
-        animal.joints = [];
-        animal._createControlPoints();
-
-        animal.genetics = new Genetics();
+        animal.reset();        
     }
 
     selection.clear();

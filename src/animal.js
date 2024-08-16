@@ -21,13 +21,17 @@ class Animal {
         this._createControlPoints();
         this._updateLegPoints();
     }
-
+    
     reset() {
         this.angry = 0;
         this.joint_widths = [
             1, 0.7, 1.2, 1.2, 1.2, 1.2, 1.1, 
             0.7, 0.6, 0.5, 0.4, 0.3, 0.3, 0.2
         ];
+        this.head_size = this.genetics.getSize();
+        this.segments_size = floor(0.6 * this.head_size);
+        this._createControlPoints();
+        this._updateLegPoints();
     }
 
     makeAngry() {
