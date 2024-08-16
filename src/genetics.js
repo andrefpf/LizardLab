@@ -1,7 +1,7 @@
 color_a = [15, 61, 49];
 color_b = [250, 175, 97];
 size_a = 12;
-size_b = 22;
+size_b = 25;
 speed_a = 5;
 speed_b = 2;
 
@@ -18,15 +18,16 @@ by a number ranging from 0 to 1.
     }
 
     getColor() {
+        let t = easeInOutQuintic(this.p_color);
         return [
-            lerp(color_a[0], color_b[0], this.p_color ** 2),
-            lerp(color_a[1], color_b[1], this.p_color ** 2),
-            lerp(color_a[2], color_b[2], this.p_color ** 2),
+            lerp(color_a[0], color_b[0], t),
+            lerp(color_a[1], color_b[1], t),
+            lerp(color_a[2], color_b[2], t),
         ]
     }
 
     getSize() {
-        return lerp(size_a, size_b, this.p_size * this.p_size * this.p_size);
+        return lerp(size_a, size_b, this.p_size ** 2);
     }
 
     getSpeed() {
@@ -47,8 +48,8 @@ by a number ranging from 0 to 1.
 
     static merge(all_genetics) {
         var merged = new Genetics();
-        merged.p_color = average(all_genetics.map(item => item.p_color));
-        merged.p_size = average(all_genetics.map(item => item.p_size));
+        merged.p_color = mean(all_genetics.map(item => item.p_color));
+        merged.p_size = mean(all_genetics.map(item => item.p_size));
         return merged
     }
 }
