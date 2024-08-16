@@ -20,9 +20,11 @@ class Game {
         this.points = 0;
         this.state = Game.GAME_RUNNING;
         this.clock.start();
+        animal_a.genetics = this.getAverageGenetics();
     }
-
+    
     stopRound() {
+        animal_b.genetics = this.getAverageGenetics();
         this.state = Game.GAME_FINISHED
     }
 
@@ -41,5 +43,10 @@ class Game {
 
     getCurrentScreen() {
         return this.screens[this.state];
+    }
+
+    getAverageGenetics() {
+        let all_genetics = this.animals.map(item => item.genetics);
+        return Genetics.merge(all_genetics);
     }
 }

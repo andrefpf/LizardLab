@@ -20,7 +20,7 @@ class StartGameScreen {
 class GameRunningScreen {
     draw() {
         push();
-        background(28, 40, 38);
+        background(10, 41, 33);
 
         selection.draw();
         
