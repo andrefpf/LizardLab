@@ -7,8 +7,10 @@ class StartGameScreen {
         textStyle(BOLD);
         textAlign(CENTER);
         textSize(width / 10);
-    
-        text("Started", width / 2, height / 4);
+        text("Lizard Lab", width / 2, height * 2 / 5);
+        
+        textSize(width / 25);
+        text("Toque na tela para iniciar", width / 2, height * 3 / 5);
         pop();    
     }
 
