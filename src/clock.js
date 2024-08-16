@@ -29,9 +29,11 @@ class Clock {
         circle(pos.x, pos.y, d);
 
         // Counter
-        fill(255, 67, 101);
-        let angle = -PI/2 - 2 * PI * this.seconds / this.total_seconds;
-        arc(pos.x, pos.y, d * 0.9, d * 0.9, angle, -PI/2, PIE);
+        if (!this.finished()) {
+            fill(255, 67, 101);
+            let angle = -PI/2 - 2 * PI * this.seconds / this.total_seconds;
+            arc(pos.x, pos.y, d * 0.9, d * 0.9, angle, -PI/2, PIE);
+        }
         
         // Center
         fill(0);

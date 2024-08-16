@@ -65,6 +65,12 @@ class EndGameScreen {
         if (typeof animal_b !== "undefined")
             animal_b.draw();
 
+        fill(255);
+        textStyle(BOLD);
+        textAlign(CENTER);
+        textSize(width / 12);    
+        text(game.points + " pts", width / 2, height - 40);
+
         pop();
     }
 

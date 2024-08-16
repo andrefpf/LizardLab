@@ -7,11 +7,11 @@ function setup() {
     let canvas = createCanvas(800, 500);
     canvas.parent("canvas-div")
 
-    animal_a = new Animal(createVector(width * 0.3, height/2), createVector(0, -1));
+    animal_a = new Animal(createVector(width * 0.2, height/2), createVector(0, -1));
     animal_a.freeze = true
     animal_a._updateLegPoints()
 
-    animal_b = new Animal(createVector(width * 0.7, height/2), createVector(0, -1));
+    animal_b = new Animal(createVector(width * 0.8, height/2), createVector(0, -1));
     animal_b.freeze = true
     animal_b._updateLegPoints()
     
@@ -25,7 +25,7 @@ function draw() {
     game.update();
     screen.update();
     screen.draw();
-}
+}   
 
 function mouseDragged() {
     var pt = createVector(mouseX, mouseY);
