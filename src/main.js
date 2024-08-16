@@ -1,25 +1,22 @@
-var animals;
-var points_label;
-
-var selection = new Selection();
-var game = new Game();
-
-var current_screen = new GameRunningScreen();
-
-
+var selection;
+var game;
 var animal_a; 
 var animal_b; 
 
 function setup() {
     let canvas = createCanvas(800, 500);
     canvas.parent("canvas-div")
-    points_label = document.getElementById("points");
 
     animal_a = new Animal(createVector(width * 0.3, height/2), createVector(0, -1));
     animal_a.freeze = true
-    
+    animal_a._updateLegPoints()
+
     animal_b = new Animal(createVector(width * 0.7, height/2), createVector(0, -1));
     animal_b.freeze = true
+    animal_b._updateLegPoints()
+    
+    selection = new Selection();
+    game = new Game();
 }
 
 function draw() {
@@ -59,7 +56,7 @@ function mouseReleased() {
     
     if (picked_animals.length == 1) {
         animal = picked_animals[0];
-        addPoints(10);
+        game.points++;
 
         // Place new animal outside of the screen and make
         // it enter the canvas
@@ -70,17 +67,7 @@ function mouseReleased() {
         animal._createControlPoints();
 
         animal.genetics = new Genetics();
-
-        // let all_genetics = animals.filter(item => item != animal)
-        //                           .map(item => item.genetics);
-        // animal.genetics = Genetics.merge(all_genetics);
-        // animal.genetics.mutate();
     }
 
     selection.clear();
-}
-
-function addPoints(delta) {
-    game.points += delta;
-    points_label.innerHTML = game.points + " pts";
 }

@@ -302,6 +302,14 @@ class Animal {
         back_right_leg.sub(normal.copy().mult(this.head_size));
         back_right_leg.add(forward.copy().mult(this.head_size * 1.4));
 
+        if (this.freeze) {
+            front_left_leg.add(0, this.head_size * 1.7);
+            front_right_leg.add(0, this.head_size * 1.7);
+            back_left_leg.add(0, this.head_size * 1.7);
+            back_right_leg.add(0, this.head_size * 1.7);
+        }
+
+
         var max_distance = this.head_size * 1.5;
         
         if (this.front_left_leg.dist(front_left_leg) > max_distance) {

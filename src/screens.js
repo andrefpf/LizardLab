@@ -29,6 +29,13 @@ class GameRunningScreen {
         }
         
         game.clock.draw();
+
+        fill(255);
+        textStyle(BOLD);
+        textAlign(RIGHT);
+        textSize(width / 12);    
+        text(game.points + " pts", width - 30, height - 40);
+
         pop();
     }
     

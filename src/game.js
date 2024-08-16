@@ -6,9 +6,10 @@ class Game {
     constructor() {
         this.number_of_animals = 10;
         this.clock = new Clock(30);
-        this.state = Game.GAME_FINISHED;
+        this.state = Game.FIRST_INIT;
         this.animals = [];
-        this.screens = {}
+        this.screens = {};
+        this.points = 0;
 
         this.screens[Game.FIRST_INIT] = new StartGameScreen();
         this.screens[Game.GAME_RUNNING] = new GameRunningScreen();
@@ -17,10 +18,10 @@ class Game {
 
     startRound() {
         this.animals = createAnimals(this.number_of_animals);;
-        this.points = 0;
-        this.state = Game.GAME_RUNNING;
-        this.clock.start();
         animal_a.genetics = this.getAverageGenetics();
+        this.points = 0;
+        this.clock.start();
+        this.state = Game.GAME_RUNNING;
     }
     
     stopRound() {
