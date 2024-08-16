@@ -1,8 +1,8 @@
 color_a = [15, 61, 49];
 color_b = [250, 175, 97];
 size_a = 12;
-size_b = 20;
-speed_a = 6;
+size_b = 22;
+speed_a = 5;
 speed_b = 2;
 
 
