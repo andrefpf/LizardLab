@@ -34,6 +34,11 @@ class Animal {
         this._updateLegPoints();
     }
 
+    setGenetics(genetics) {
+        this.genetics = genetics;
+        this.reset();
+    }
+
     makeAngry() {
         this.angry = 300;
     }
@@ -307,12 +312,12 @@ class Animal {
         back_right_leg.add(forward.copy().mult(this.head_size * 1.4));
 
         if (this.freeze) {
-            front_left_leg.add(0, this.head_size * 1.7);
-            front_right_leg.add(0, this.head_size * 1.7);
-            back_left_leg.add(0, this.head_size * 1.7);
-            back_right_leg.add(0, this.head_size * 1.7);
+            this.front_left_leg = front_left_leg.add(0, this.head_size);
+            this.front_right_leg = front_right_leg.add(0, this.head_size);
+            this.back_left_leg = back_left_leg.add(0, this.head_size);
+            this.back_right_leg = back_right_leg.add(0, this.head_size);
+            return;
         }
-
 
         var max_distance = this.head_size * 1.5;
         

@@ -18,14 +18,14 @@ class Game {
 
     startRound() {
         this.animals = createAnimals(this.number_of_animals);;
-        animal_a.genetics = this.getAverageGenetics();
+        animal_a.setGenetics(this.getAverageGenetics());
         this.points = 0;
         this.clock.start();
         this.state = Game.GAME_RUNNING;
     }
     
     stopRound() {
-        animal_b.genetics = this.getAverageGenetics();
+        animal_b.setGenetics(this.getAverageGenetics());
         this.state = Game.GAME_FINISHED
     }
 

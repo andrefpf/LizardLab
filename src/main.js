@@ -68,10 +68,9 @@ function mouseReleased() {
 
         // Place new animal outside of the screen and make
         // it enter the canvas
-        animal.genetics = new Genetics();
         animal.position = createVector(-20, height / 2);
         animal.direction  = createVector(1, 0);
-        animal.reset();        
+        animal.setGenetics(new Genetics());
     }
 
     selection.clear();
