@@ -1,7 +1,7 @@
 color_a = [15, 61, 49];
 color_b = [250, 175, 97];
-size_a = 12;
-size_b = 25;
+size_a = 10;
+size_b = 20;
 speed_a = 5;
 speed_b = 2;
 
@@ -27,7 +27,8 @@ by a number ranging from 0 to 1.
     }
 
     getSize() {
-        return lerp(size_a, size_b, this.p_size ** 2);
+        let t = easeInOutCubic(this.p_size);
+        return lerp(size_a, size_b, t);
     }
 
     getSpeed() {
@@ -35,12 +36,12 @@ by a number ranging from 0 to 1.
     }
 
     mutate() {
-        if (Math.random() > 0.2) {
+        if (Math.random() < 0.3) {
             this.p_color += (Math.random() - 0.5) * 0.7;
             this.p_color = clamp(this.p_color, 0, 1);
         }
 
-        if (Math.random() > 0.2) {
+        if (Math.random() < 0.3) {
             this.p_size += (Math.random() - 0.5) * 0.7;
             this.p_size = clamp(this.p_size, 0, 1);
         }

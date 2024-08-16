@@ -66,11 +66,14 @@ function mouseReleased() {
         animal = picked_animals[0];
         game.points++;
 
+        let genetics = game.getAverageGenetics();
+        genetics.mutate();
+        
         // Place new animal outside of the screen and make
         // it enter the canvas
         animal.position = createVector(-20, height / 2);
         animal.direction  = createVector(1, 0);
-        animal.setGenetics(new Genetics());
+        animal.setGenetics(genetics);
     }
 
     selection.clear();
