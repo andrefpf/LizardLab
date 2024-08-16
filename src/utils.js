@@ -20,12 +20,19 @@ function mean(array) {
 }
 
 function geoMean(array) {
-    let mul = 0;
-    let div = 1 / array.length;
+    let mul = 1;
     for (let val of array) {
-        mul *= val * div;
+        mul *= val;
     }
-    return mul;
+    return Math.pow(mul, 1 / array.length);
+}
+
+function easeInCubic(x) {
+    return x * x * x;
+}
+
+function easeOutCubic(x) {
+    return 1 - Math.pow(1 - x, 3);
 }
 
 function easeInOutCubic(x) {
